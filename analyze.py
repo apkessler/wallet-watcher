@@ -3,8 +3,9 @@
 import sys
 import pickle
 import csv
+#from matplotlib import pyplot
 
-types = ['Ignore', 'Gas', 'Rent','Grocery', 'Food', 'Cats','Fun', 'Other']
+types = ['Ignore', 'Gas', 'Rent','Grocery', 'Living', 'Food', 'Cats','Fun', 'Other']
 
 def askForType(payee):
     
@@ -48,7 +49,7 @@ def main(vargs):
 
     #Initialize the moneySpent dictionary 
     moneySpent = {}
-    for ii in range(0,len(types)):
+    for ii in range(1,len(types)):
         moneySpent[types[ii]] = 0
     
     #this will be a list of all transactions so we can write them to a file later    
@@ -70,10 +71,10 @@ def main(vargs):
                 vendorTypes[payee] = type
                 print "OK, %s is of type %s." % (payee,type)
 
-                
-            amt = -1*float(data[4])
-            moneySpent[type] += amt
-            transactions.append((type, payee, amt, date))
+            if (type != 'Ignore'):
+                amt = -1*float(data[4])
+                moneySpent[type] += amt
+                transactions.append((type, payee, amt, date))
  
     print "Done parsing!"
     print "SUMMARY".center(50,'-')
@@ -81,11 +82,15 @@ def main(vargs):
         print "%s$%s" % (tp.ljust(10,'.'), am)
     print "-"*50
 
-
+    #tps, ams = moneySpent.keys(), moneySpent.values()
+    #pyplot.pie(ams, names = tps)
+    
+    
     with open("%s_out.csv" % vargs[1].split('.')[0], 'w') as fOut:
         writer = csv.writer(fOut)
 
-        for type in types:
+        for ii in range(1,len(types)):
+            type = types[ii]
             writer.writerow([type.upper(), moneySpent[type]])
           
         writer.writerow([])
