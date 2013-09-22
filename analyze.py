@@ -31,7 +31,11 @@ def isLineBlank(line):
 def main(vargs):
 
     if (len(vargs) == 2):
-        csvfile =  open(vargs[1], 'rU')
+        try:
+            csvfile =  open(vargs[1], 'rU')
+        except IOError as err:
+            print err
+            exit()
         content = csv.reader(csvfile, delimiter = ',')
     else:
         print "usage: analyze.py <inputfile.csv>"
