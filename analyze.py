@@ -4,32 +4,61 @@ import sys
 import pickle
 import csv
 
+types = ['Ignore', 'Gas', 'Rent','Grocery', 'Food', 'Cats','Fun', 'Other']
 
-if (len(sys.argv) != 2):
-    print "usage: analyze.py <inputfile>"
-    exit()
+def askForType(payee):
+    
+    print "What type of vendor is %s? " % payee
+    for ii in range(0,len(types)):
+        print "\t[%d]: %s" % (ii, types[ii])
+    try:
+        typeIndex = int(raw_input(">> "))
+        type = types[typeIndex]
+        return type
+    except IndexError:
+        print "Bad input."
+        return askForType(payee)
+    except ValueError:
+        print "Bad input."
+        return askForType(payee)
+        
+
+def isLineBlank(line):
+    return (''.join(line) == '')
 
 
+def main(vargs):
 
-try:
-    vendorTypes = pickle.load(open("VendorTypes.p","rb"))
-except:
-    print "VendorTypes.p does not exist - creating file."
-    vendorTypes = {}
-    pickle.dump(vendorTypes, open("VendorTypes.p", "wb"))
+    if (len(vargs) == 2):
+        csvfile =  open(vargs[1], 'rU')
+        content = csv.reader(csvfile, delimiter = ',')
+    else:
+        print "usage: analyze.py <inputfile.csv>"
+        exit()
+
+
+    #Attempt to load vendor type mapping file.
+    try:
+        vendorTypes = pickle.load(open("VendorTypes.p","rb"))
+    except:
+        print "VendorTypes.p does not exist - creating file."
+        vendorTypes = {}
+        pickle.dump(vendorTypes, open("VendorTypes.p", "wb"))
     
 
-moneySpent = {}
-types = ['Ignore', 'Living Expenses', 'Food', 'Fun', 'Other']
-for ii in range(0,len(types)):
-    moneySpent[types[ii]] = 0
+    #Initialize the moneySpent dictionary 
+    moneySpent = {}
+    for ii in range(0,len(types)):
+        moneySpent[types[ii]] = 0
     
-transactions=[]
+    #this will be a list of all transactions so we can write them to a file later    
+    transactions=[]
 
-with open(sys.argv[1], 'rU') as csvfile:
-    content = csv.reader(csvfile, delimiter = ',')
+
     for data in content:
-        if (''.join(data) != ''):
+        if (isLineBlank(data)):
+            pass #just skip a blank line
+        else:
             date = data[0]
             payee = ' '.join(data[2].split())
 
@@ -37,35 +66,33 @@ with open(sys.argv[1], 'rU') as csvfile:
                 type = vendorTypes[payee]
                 print "%s is of type %s." % (payee, type)
             except KeyError:
-                for ii in range(0,len(types)):
-                    print "[%d]: %s" % (ii, types[ii])
-                typeIndex = int(raw_input("What type of vendor is %s? " % payee))
-                if (typeIndex):
-                    type = types[typeIndex]
-                    vendorTypes[payee] = type
-                    print "OK, %s is of type %s." % (payee,type)
-                else:
-                    continue
-                    
+                type = askForType(payee)
+                vendorTypes[payee] = type
+                print "OK, %s is of type %s." % (payee,type)
+
+                
             amt = -1*float(data[4])
             moneySpent[type] += amt
             transactions.append((type, payee, amt, date))
-                
-        else:
-            pass
-   
-print moneySpent
+ 
+
+    print moneySpent
 
 
-fOut = open("%s.out" % sys.argv[1].split('.')[0],'w')
+    fOut = open("%s.out" % sys.argv[1].split('.')[0],'w')
 
-for type in types:
-    fOut.write("\n\n %s: $%s\n" % (type.upper(), moneySpent[type]))
-    for trans in transactions:
-        if (trans[0] == type):
-            fOut.write("\t%s\n" % str(trans))
+    for type in types:
+        fOut.write("\n\n %s: $%s\n" % (type.upper(), moneySpent[type]))
+        for trans in transactions:
+            if (trans[0] == type):
+                fOut.write("\t%s\n" % str(trans))
             
-fOut.close()
+    fOut.close()
 
-#Write the updated vendor types to file
-pickle.dump(vendorTypes, open("VendorTypes.p", "wb"))
+    #Write the updated vendor types to file
+    pickle.dump(vendorTypes, open("VendorTypes.p", "wb"))
+    
+    
+    
+if __name__ == "__main__":
+    main(sys.argv)
