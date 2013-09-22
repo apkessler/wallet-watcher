@@ -75,8 +75,12 @@ def main(vargs):
             moneySpent[type] += amt
             transactions.append((type, payee, amt, date))
  
+    print "Done parsing!"
+    print "SUMMARY".center(50,'-')
+    for tp,am in moneySpent.iteritems():
+        print "%s$%s" % (tp.ljust(10,'.'), am)
+    print "-"*50
 
-    print moneySpent
 
     with open("%s_out.csv" % vargs[1].split('.')[0], 'w') as fOut:
         writer = csv.writer(fOut)
@@ -93,8 +97,9 @@ def main(vargs):
             
 
     #Write the updated vendor types to file
+    print "Writing new pickle file..."
     pickle.dump(vendorTypes, open("VendorTypes.p", "wb"))
-    
+    print "Done!"
     
     
 if __name__ == "__main__":
