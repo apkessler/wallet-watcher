@@ -78,16 +78,19 @@ def main(vargs):
 
     print moneySpent
 
+    with open("%s_out.csv" % vargs[1].split('.')[0], 'w') as fOut:
+        writer = csv.writer(fOut)
 
-    fOut = open("%s.out" % sys.argv[1].split('.')[0],'w')
-
-    for type in types:
-        fOut.write("\n\n %s: $%s\n" % (type.upper(), moneySpent[type]))
-        for trans in transactions:
-            if (trans[0] == type):
-                fOut.write("\t%s\n" % str(trans))
+        for type in types:
+            writer.writerow([type.upper(), moneySpent[type]])
+          
+        writer.writerow([])
+        for type in types:  
+            for trans in transactions:
+                if (trans[0] == type):
+                    writer.writerow(trans)
             
-    fOut.close()
+            
 
     #Write the updated vendor types to file
     pickle.dump(vendorTypes, open("VendorTypes.p", "wb"))
