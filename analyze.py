@@ -3,7 +3,7 @@
 import sys
 import pickle
 import csv
-#from matplotlib import pyplot
+from matplotlib import pyplot
 
 types = ['Ignore', 'Gas', 'Rent','Grocery', 'Living', 'Food', 'Cats','Fun', 'Other']
 
@@ -86,9 +86,6 @@ def main(vargs):
         print "%s$%s" % (tp.ljust(10,'.'), am)
     print "-"*50
 
-    #tps, ams = moneySpent.keys(), moneySpent.values()
-    #pyplot.pie(ams, names = tps)
-    
     
     with open("%s_out.csv" % vargs[1].split('.')[0], 'w') as fOut:
         writer = csv.writer(fOut)
@@ -109,6 +106,10 @@ def main(vargs):
     print "Writing new pickle file..."
     pickle.dump(vendorTypes, open("VendorTypes.p", "wb"))
     print "Done!"
+    
+    tps, ams = moneySpent.keys(), moneySpent.values()
+    pyplot.pie(ams, labels = tps, autopct='%1.1f%%')
+    pyplot.show()
     
     
 if __name__ == "__main__":
