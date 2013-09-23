@@ -8,6 +8,24 @@ from optparse import OptionParser
 
 types = ['Ignore', 'Gas', 'Rent','Grocery', 'Living', 'Food', 'Cats','Fun', 'Other']
 
+
+def addMask(theMask):
+    try:
+        masks = pickle.load(open("VendorMasks.p","rb"))
+        print "Found a vendor masks file!"
+    except:
+        print "VendorMasks.p does not exist - starting with a blank file."
+        masks = []
+        
+    if (theMask != "*"):
+        masks.append(theMask)    
+        pickle.dump(masks, open("VendorMasks.p", "wb"))
+        print "Added %s to mask file." % theMask
+    
+    else:
+        print masks
+
+
 def askForType(payee):
     
     print "What type of vendor is %s? " % payee
@@ -35,8 +53,15 @@ def main():
     parser = OptionParser(usage=usage)
     parser.add_option("-p", "--pie", action = "store_true", dest = "showPiePlot", 
                 default = False, help = "generate a pie graph showing relative spending")
+    parser.add_option("-m", "--mask", dest = "maskName", default = '',
+                help = "create a vendor name mask")
             
     (options, args) = parser.parse_args()
+
+    if (options.maskName != ''):
+        addMask(options.maskName)
+        exit()
+        
 
     if (len(args) == 1):
         try:
@@ -58,6 +83,15 @@ def main():
         vendorTypes = {}
         pickle.dump(vendorTypes, open("VendorTypes.p", "wb"))
     
+    #Any Payee name that contains one of these strings will be mapped by type to that substring
+    #useful for when some payees show up different every time (Movie theatre, iTunes, etc.)
+    try:
+        masks = pickle.load(open("VendorMasks.p","rb"))
+        print "Found a vendor masks file!"
+    except:
+        print "VendorMasks.p does not exist - creating file."
+        masks = []
+        pickle.dump(masks, open("VendorMasks.p", "wb"))
 
     #Initialize the moneySpent dictionary 
     moneySpent = {}
@@ -74,13 +108,22 @@ def main():
         else:
             date = data[0]
             payee = ' '.join(data[2].split())
-
+            
+            payeeLookup = payee
+            
+            for mask in masks:
+                if (payee.find(mask, 0, len(payee)) >= 0):
+                    payeeLookup = mask
+                    print "Found mask: %s!" % mask
+                    break
+            
+            
             try:
-                type = vendorTypes[payee]
+                type = vendorTypes[payeeLookup]
                 print "%s%s" % (payee.title().ljust(45,"."), type)
             except KeyError:
                 type = askForType(payee)
-                vendorTypes[payee] = type
+                vendorTypes[payeeLookup] = type
                 print "OK, %s is of type %s." % (payee,type)
 
             if (type != 'Ignore'):
