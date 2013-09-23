@@ -4,6 +4,7 @@ import sys
 import pickle
 import csv
 from matplotlib import pyplot
+from optparse import OptionParser
 
 types = ['Ignore', 'Gas', 'Rent','Grocery', 'Living', 'Food', 'Cats','Fun', 'Other']
 
@@ -28,19 +29,25 @@ def isLineBlank(line):
     return (''.join(line) == '')
 
 
-def main(vargs):
+def main():
+    
+    usage = "usage: %prog [options] inputfile.csv"
+    parser = OptionParser(usage=usage)
+    parser.add_option("-p", "--pie", action = "store_true", dest = "showPiePlot", 
+                default = False, help = "generate a pie graph showing relative spending")
+            
+    (options, args) = parser.parse_args()
 
-    if (len(vargs) == 2):
+    if (len(args) == 1):
         try:
-            csvfile =  open(vargs[1], 'rU')
+            csvfile =  open(args[0], 'rU')
         except IOError as err:
             print err
             exit()
         content = csv.reader(csvfile, delimiter = ',')
     else:
-        print "usage: analyze.py <inputfile.csv>"
+        parser.print_help()
         exit()
-
 
     #Attempt to load vendor type mapping file.
     try:
@@ -87,7 +94,7 @@ def main(vargs):
     print "-"*50
 
     
-    with open("%s_out.csv" % vargs[1].split('.')[0], 'w') as fOut:
+    with open("%s_out.csv" % args[0].split('.')[0], 'w') as fOut:
         writer = csv.writer(fOut)
 
         for ii in range(1,len(types)):
@@ -107,10 +114,11 @@ def main(vargs):
     pickle.dump(vendorTypes, open("VendorTypes.p", "wb"))
     print "Done!"
     
-    tps, ams = moneySpent.keys(), moneySpent.values()
-    pyplot.pie(ams, labels = tps, autopct='%1.1f%%')
-    pyplot.show()
+    if (options.showPiePlot):
+        tps, ams = moneySpent.keys(), moneySpent.values()
+        pyplot.pie(ams, labels = tps, autopct='%1.1f%%')
+        pyplot.show()
     
     
 if __name__ == "__main__":
-    main(sys.argv)
+    main()
