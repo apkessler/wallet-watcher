@@ -17,13 +17,24 @@ def addMask(theMask):
         print "VendorMasks.p does not exist - starting with a blank file."
         masks = []
         
-    if (theMask != "*"):
-        masks.append(theMask)    
-        pickle.dump(masks, open("VendorMasks.p", "wb"))
-        print "Added %s to mask file." % theMask
-    
-    else:
-        print masks
+
+    masks.append(theMask)    
+    pickle.dump(masks, open("VendorMasks.p", "wb"))
+    print "Added %s to mask file." % theMask
+
+        
+def viewMasks():
+    try:
+        masks = pickle.load(open("VendorMasks.p","rb"))
+        print("VENDOR MASKS".center(50, "-"))
+        for mask in masks:
+            print mask
+        print "-"*50
+    except:
+        print "No masks found."
+
+ 
+
 
 
 def askForType(payee):
@@ -53,13 +64,23 @@ def main():
     parser = OptionParser(usage=usage)
     parser.add_option("-p", "--pie", action = "store_true", dest = "showPiePlot", 
                 default = False, help = "generate a pie graph showing relative spending")
-    parser.add_option("-m", "--mask", dest = "maskName", default = '',
-                help = "create a vendor name mask")
+    parser.add_option("-m", "--mask", action = "store_true", dest = "alterMask", 
+                default = False, help = "add/view a vendor name mask")
             
     (options, args) = parser.parse_args()
 
-    if (options.maskName != ''):
-        addMask(options.maskName)
+    if (options.alterMask):
+        if (len(args) == 1):
+            confirm = raw_input("Add '%s' to vendor masks? [Y/n] " % args[0])
+            if (confirm == 'Y'):
+                addMask(args[0])
+            else:
+                print "Aborting add to masks."
+        elif (len(args) == 0):
+            viewMasks()
+        else:
+            parser.print_help()
+        
         exit()
         
 
