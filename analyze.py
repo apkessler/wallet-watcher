@@ -52,6 +52,7 @@ def main():
     #Attempt to load vendor type mapping file.
     try:
         vendorTypes = pickle.load(open("VendorTypes.p","rb"))
+        print "Found a vendor mapping file!"
     except:
         print "VendorTypes.p does not exist - creating file."
         vendorTypes = {}
@@ -76,7 +77,7 @@ def main():
 
             try:
                 type = vendorTypes[payee]
-                print "%s is of type %s." % (payee, type)
+                print "%s%s" % (payee.title().ljust(45,"."), type)
             except KeyError:
                 type = askForType(payee)
                 vendorTypes[payee] = type
