@@ -10,6 +10,13 @@ types = ['Ignore', 'Gas', 'Rent','Grocery', 'Living', 'Food', 'Cats','Fun', 'Oth
 
 
 def addMask(theMask):
+    '''
+        Add a vendor mask string to the list of vendor masks.
+        
+        Args:
+            theMask: string -- vendor mask to add
+    '''
+    
     try:
         masks = pickle.load(open("VendorMasks.p","rb"))
         print "Found a vendor masks file!"
@@ -24,6 +31,10 @@ def addMask(theMask):
 
         
 def viewMasks():
+    '''
+        Print any existing vendor masks.
+    '''
+    
     try:
         masks = pickle.load(open("VendorMasks.p","rb"))
         print("VENDOR MASKS".center(50, "-"))
@@ -38,6 +49,14 @@ def viewMasks():
 
 
 def askForType(payee):
+    '''
+        Prompt the user for the type of a given payee. If the user gives an invalid input,
+        continue prompting.
+        
+        Args:
+            payee: string -- The payee to prompt for the type of.
+    
+    '''
     
     print "What type of vendor is %s? " % payee
     for ii in range(0,len(types)):
@@ -55,6 +74,9 @@ def askForType(payee):
         
 
 def isLineBlank(line):
+    '''
+        Return whether or not a line of  a CSV (list of strings) is all empty. 
+    '''
     return (''.join(line) == '')
 
 
