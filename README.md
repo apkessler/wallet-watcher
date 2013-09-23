@@ -1,7 +1,7 @@
 #wallet-watcher
 
 Tools for parsing bank account summaries and monitoring spending habits. 
-Andrew Kessler, 2013
+Andrew P. Kessler, 2013
 
 
 ##Usage
